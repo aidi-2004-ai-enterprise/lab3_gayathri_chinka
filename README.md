@@ -1,86 +1,52 @@
 # Lab 3: Penguins Classification with XGBoost and FastAPI
 
-## Overview
-This project implements a machine learning pipeline for penguin species classification using the Seaborn penguins dataset. The solution includes data preprocessing, XGBoost model training, and deployment via a FastAPI application with robust input validation and error handling.
+## 🔍 Course Context
 
-## Features
-- **Data Processing**: Manual one-hot encoding for categorical features, label encoding for target variable
-- **Machine Learning**: XGBoost classifier with overfitting prevention parameters
-- **API Deployment**: FastAPI application with Pydantic data validation
-- **Error Handling**: Graceful error handling with clear HTTP status codes and messages
-- **Logging**: Comprehensive logging for model operations and API requests
-- **Input Validation**: Enum-based validation for categorical inputs (sex, island)
+This repository was created under my **AI course (AIDI-2004)** as part of **Lab 3**. It involves building a machine learning model and serving it using a FastAPI application.
 
-## Project Structure
-```
-├── train.py                 # Model training script
-├── app/
-│   ├── main.py             # FastAPI application
-│   ├── data/
-│   │   ├── model.json      # Trained XGBoost model
-│   │   ├── label_encoder.pkl    # Label encoder for species
-│   │   └── feature_columns.pkl  # Feature column order
-├── pyproject.toml          # UV package management
-├── app.log                 # Application logs
-└── README.md               # Project documentation
-```
+## 🧑‍💻 Project Setup & Workflow
 
-## Requirements
-- Python 3.8+
-- UV package manager
-- Dependencies listed in `pyproject.toml`
+1. I first created a GitHub repository for Lab 3.
+2. Then, I cloned the repository to my local device (laptop).
+3. I created and implemented the following main components:
 
-## Installation
+   * `train.py` for model training and saving
+   * `main.py` inside the `app/` folder for FastAPI-based prediction API
+4. I followed all professor instructions and maintained all quality checks:
 
-### 1. Clone the Repository
+   * Docstrings and type hints ✅
+   * Input validation using `Enum` for `sex` and `island` ✅
+   * Manual one-hot encoding in both `train.py` and `main.py` ✅
+   * Model and API run without error ✅
+   * Matching preprocessing logic in both files ✅
+
+## 🖥️ How I Ran the Project (Step-by-step)
+
 ```bash
-git clone https://github.com/aidi-2004-ai-enterprise/lab3_gayathri_chinka.git
-cd lab3_gayathri_chinka
+# 1. Create virtual environment (only once)
+python -m venv .venv
+
+# 2. Activate virtual environment
+.venv\Scripts\activate  # On Windows
+
+# 3. Install required packages (with UV or pip)
+uv pip install -r requirements.txt  # or manually install fastapi, xgboost, etc.
+
+# 4. Train the model
+python train.py
+
+# 5. Run the FastAPI server
+uvicorn app.main:app --reload
 ```
 
-### 2. Install UV (if not already installed)
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+## 🌐 FastAPI Swagger UI
 
-### 3. Install Dependencies
-```bash
-uv sync
-```
+Once the server is running, I tested my API at: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-## Usage
+## ✅ Test Inputs & Outputs
 
-### 1. Train the Model
-First, train the XGBoost model on the penguins dataset:
-```bash
-uv run python train.py
-```
+### 🔹 Valid Input 1
 
-This will:
-- Load and preprocess the penguins dataset
-- Train an XGBoost classifier
-- Evaluate model performance
-- Save the model to `app/data/model.json`
-
-### 2. Start the API Server
-Launch the FastAPI application:
-```bash
-uv run uvicorn app.main:app --reload
-```
-
-The API will be available at: `http://localhost:8000`
-
-### 3. Access API Documentation
-Visit the interactive API documentation:
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
-
-## API Endpoints
-
-### POST `/predict`
-Predict penguin species based on physical measurements.
-
-**Request Body:**
 ```json
 {
   "bill_length_mm": 39.1,
@@ -93,121 +59,117 @@ Predict penguin species based on physical measurements.
 }
 ```
 
-**Valid Values:**
-- `sex`: "male" or "female"
-- `island`: "Torgersen", "Biscoe", or "Dream"
+🔸 Output:
 
-**Response:**
 ```json
 {
   "predicted_species": "Adelie",
   "confidence_scores": {
-    "Adelie": 0.8234,
-    "Chinstrap": 0.1234,
-    "Gentoo": 0.0532
+    "Adelie": 0.9986,
+    "Chinstrap": 0.0007,
+    "Gentoo": 0.0006
   }
 }
 ```
 
-### GET `/health`
-Check API health status.
+### 🔹 Valid Input 2
 
-### GET `/`
-Root endpoint with welcome message.
+```json
+{
+  "bill_length_mm": 47.4,
+  "bill_depth_mm": 14.6,
+  "flipper_length_mm": 212.0,
+  "body_mass_g": 4725.0,
+  "year": 2009,
+  "sex": "female",
+  "island": "Biscoe"
+}
+```
 
-## Example Usage
+🔸 Output:
 
-### Successful Prediction
-```bash
-curl -X POST "http://localhost:8000/predict" \
--H "Content-Type: application/json" \
--d '{
+```json
+{
+  "predicted_species": "Gentoo",
+  "confidence_scores": {
+    "Adelie": 0.0015,
+    "Chinstrap": 0.0019,
+    "Gentoo": 0.9965
+  }
+}
+```
+
+### 🔹 Invalid Island Input
+
+```json
+{
   "bill_length_mm": 39.1,
   "bill_depth_mm": 18.7,
   "flipper_length_mm": 181.0,
   "body_mass_g": 3750.0,
   "year": 2007,
   "sex": "male",
-  "island": "Torgersen"
-}'
+  "island": "InvalidIsland"
+}
 ```
 
-### Error Handling Example
-```bash
-curl -X POST "http://localhost:8000/predict" \
--H "Content-Type: application/json" \
--d '{
+🔸 Output:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "island"],
+      "msg": "Input should be 'Torgersen', 'Biscoe' or 'Dream'",
+      "type": "enum",
+      "input": "InvalidIsland"
+    }
+  ]
+}
+```
+
+### 🔹 Invalid Sex Input
+
+```json
+{
   "bill_length_mm": 39.1,
   "bill_depth_mm": 18.7,
   "flipper_length_mm": 181.0,
   "body_mass_g": 3750.0,
   "year": 2007,
-  "sex": "invalid_sex",
+  "sex": "unknown",
   "island": "Torgersen"
-}'
+}
 ```
 
-Returns HTTP 400 with validation error details.
+🔸 Output:
 
-## Model Performance
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "sex"],
+      "msg": "Input should be 'male' or 'female'",
+      "type": "enum",
+      "input": "unknown"
+    }
+  ]
+}
+```
 
-The XGBoost model is trained with the following parameters to prevent overfitting:
-- `max_depth=3`: Limits tree depth
-- `n_estimators=100`: Number of boosting rounds
-- `learning_rate=0.1`: Step size shrinkage
+## 📦 Files I Created
 
-Performance metrics are displayed during training for both training and test sets.
+* `train.py`: Loads Seaborn dataset, does manual one-hot encoding, trains XGBoost model, saves `.json` model
+* `main.py`: Defines FastAPI endpoints with full validation and prediction logic
+* `app/data/`: Stores trained model, feature order, label encoder
+* `pyproject.toml`: Lists dependencies
+* `README.md`: This file
 
-## Error Handling
 
-The API provides robust error handling:
-- **HTTP 400**: Input validation errors (invalid sex/island values, missing fields)
-- **HTTP 422**: Pydantic validation errors (wrong data types)
-- **HTTP 500**: Internal server errors
 
-All errors include descriptive messages and valid value options.
+## 📬 Conclusion & Contact
 
-## Logging
+This project helped me understand how to integrate model training and API deployment using modern tools like XGBoost and FastAPI. Testing and debugging the validation logic helped me gain hands-on experience with enum-based constraints and real-time prediction flows.
 
-The application logs important events:
-- Model loading and initialization
-- Prediction requests and results
-- Input validation errors
-- Server startup and health checks
-
-Logs are written to both console and `app.log` file.
-
-## Demo Video
-
-[Include your screen recording here - upload the .mp4 file to the repository]
-
-The demo video shows:
-- Successful API requests with different penguin species
-- Error handling for invalid inputs
-- Interactive API documentation
-- Model prediction responses
-
-## Development
-
-### Code Structure
-- `train.py`: Complete training pipeline with evaluation
-- `app/main.py`: FastAPI application with validation and logging
-
-### Dependencies Management
-This project uses UV for dependency management. Key dependencies:
-- `fastapi`: Web framework
-- `uvicorn`: ASGI server
-- `xgboost`: Machine learning model
-- `pandas`: Data manipulation
-- `scikit-learn`: Preprocessing and metrics
-- `seaborn`: Dataset loading
-- `pydantic`: Data validation
-
-## Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Make changes with proper testing
-4. Submit a pull request
-
-## License
-This project is part of AIDI-2004 coursework.
+📧 **Email:** [gayathrichinka123@gmail.com](mailto:gayathrichinka123@gmail.com)
+🐙 **GitHub ID:** [gayathri18chinka](https://github.com/gayathri18chinka)
