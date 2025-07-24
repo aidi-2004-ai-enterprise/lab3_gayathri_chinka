@@ -1,0 +1,20 @@
+[project]
+name = "lab3-gayathri-chinka"
+version = "0.1.0"
+description = "Penguin species classification with XGBoost and FastAPI"
+requires-python = ">=3.8"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "xgboost>=2.0.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "seaborn>=0.12.0",
+    "pydantic>=2.0.0",
+    "joblib>=1.3.0",
+    "requests>=2.31.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
