@@ -1,0 +1,6 @@
+2025-07-24 15:31:20,087 - INFO - Starting up the application...
+2025-07-24 15:31:20,127 - INFO - Model loaded successfully from app/data/model.json
+2025-07-24 15:31:20,147 - INFO - Label encoder loaded successfully
+2025-07-24 15:31:20,164 - INFO - Feature columns loaded successfully
+2025-07-24 15:31:20,165 - INFO - Expected feature columns: ['bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g', 'sex_Female', 'sex_Male', 'island_Biscoe', 'island_Dream', 'island_Torgersen']
+2025-07-24 15:31:20,166 - INFO - Application startup complete
